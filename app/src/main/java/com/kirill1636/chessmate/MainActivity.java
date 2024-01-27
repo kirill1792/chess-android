@@ -1,12 +1,15 @@
 package com.kirill1636.chessmate;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
+import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.navigation.NavigationView;
 
+import androidx.annotation.NonNull;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -15,6 +18,10 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.kirill1636.chessmate.databinding.ActivityMainBinding;
+import com.vk.id.AccessToken;
+import com.vk.id.VKID;
+import com.vk.id.VKIDAuthFail;
+import com.vk.id.auth.VKIDAuthParams;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -24,6 +31,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        VKID.Companion.setLogsEnabled(true);
+        VKID vkid = new VKID(getApplicationContext());
+        VKIDAuthParams authParams = new VKIDAuthParams.Builder().build();
+        vkid.authorize(this, new AuthCallback(), authParams);
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -63,4 +75,18 @@ public class MainActivity extends AppCompatActivity {
                 || super.onSupportNavigateUp();
     }
 
+    class AuthCallback implements VKID.AuthCallback {
+        @Override
+        public void onSuccess(@NonNull AccessToken accessToken) {
+            Log.i("VKID","accessToken: " + accessToken.getToken());
+            Toast.makeText(getApplicationContext(),
+                    accessToken.getUserData().getFirstName() + " " + accessToken.getUserData().getLastName(),
+                    Toast.LENGTH_LONG).show();
+        }
+
+        @Override
+        public void onFail(@NonNull VKIDAuthFail vkidAuthFail) {
+            Log.e("VKID",vkidAuthFail.toString());
+        }
+    }
 }

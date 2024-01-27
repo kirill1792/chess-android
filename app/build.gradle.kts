@@ -18,6 +18,13 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        addManifestPlaceholders(mapOf(
+            "VKIDRedirectHost" to "vk.com", // обычно vk.com
+            "VKIDRedirectScheme" to "vk51843076", // обычно vk{ID приложения}
+            "VKIDClientID" to "51843076",
+            "VKIDClientSecret" to "QawCmZcooPac0ExJThU8"
+        ))
     }
 
     buildTypes {
@@ -27,6 +34,11 @@ android {
         }
     }
     compileOptions {
+        // For AGP 4.1+
+        isCoreLibraryDesugaringEnabled = true
+        // For AGP 4.0
+        // coreLibraryDesugaringEnabled = true
+
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
@@ -55,9 +67,17 @@ android {
     buildToolsVersion = "34.0.0"
 }
 
-dependencies {
+val sdkVersion = "1.2.0"
 
+dependencies {
+    // Если используете авторизацию без UI, укажите эту зависимость.
+    implementation("com.vk.id:vkid:${sdkVersion}")
+    // Если используете One Tap на Compose, укажите эту зависимость.
+    implementation("com.vk.id:onetap-compose:${sdkVersion}")
+    // Если используете One Tap на XML, укажите эту зависимость.
+    implementation("com.vk.id:onetap-xml:${sdkVersion}")
     implementation("androidx.appcompat:appcompat:1.5.0")
+    implementation("androidx.compose.runtime:runtime:1.5.0")
     implementation("com.google.android.material:material:1.6.1")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.5.1")
@@ -70,5 +90,6 @@ dependencies {
     implementation("org.springframework.android:spring-android-rest-template:1.0.1.RELEASE")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.3.2")
 
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:1.0.9")
 
 }
