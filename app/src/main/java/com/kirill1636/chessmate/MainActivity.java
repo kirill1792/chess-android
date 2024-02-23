@@ -1,30 +1,37 @@
 package com.kirill1636.chessmate;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.view.Menu;
+import android.view.View;
 import android.widget.Toast;
 
-import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.navigation.NavigationView;
-
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
 import com.kirill1636.chessmate.databinding.ActivityMainBinding;
+import com.kirill1636.chessmate.http.UserTask;
 import com.vk.id.AccessToken;
 import com.vk.id.VKID;
 import com.vk.id.VKIDAuthFail;
-import com.vk.id.auth.VKIDAuthParams;
+
+import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.web.client.RestTemplate;
 
 public class MainActivity extends AppCompatActivity {
 
+    private final String SERVER_HOST = "188.225.33.112";
+   // private final String SERVER_HOST = "10.0.2.2";
+    private final String SERVER_URL = "http://" + SERVER_HOST + ":8080/";
+    //rivate final String SERVER_URL = "http://192.168.29.76:8000";
     private AppBarConfiguration mAppBarConfiguration;
     private ActivityMainBinding binding;
 
@@ -32,10 +39,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        VKID.Companion.setLogsEnabled(true);
-        VKID vkid = new VKID(getApplicationContext());
-        VKIDAuthParams authParams = new VKIDAuthParams.Builder().build();
-        vkid.authorize(this, new AuthCallback(), authParams);
+        System.out.println("=====torba=====");
+        Log.e("FFF", "Boroda");
+
+//        VKID.Companion.setLogsEnabled(true);
+//        VKID vkid = new VKID(getApplicationContext());
+//        VKIDAuthParams authParams = new VKIDAuthParams.Builder().build();
+//        vkid.authorize(this, new AuthCallback(), authParams);
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -73,20 +83,5 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         return NavigationUI.navigateUp(navController, mAppBarConfiguration)
                 || super.onSupportNavigateUp();
-    }
-
-    class AuthCallback implements VKID.AuthCallback {
-        @Override
-        public void onSuccess(@NonNull AccessToken accessToken) {
-            Log.i("VKID","accessToken: " + accessToken.getToken());
-            Toast.makeText(getApplicationContext(),
-                    accessToken.getUserData().getFirstName() + " " + accessToken.getUserData().getLastName(),
-                    Toast.LENGTH_LONG).show();
-        }
-
-        @Override
-        public void onFail(@NonNull VKIDAuthFail vkidAuthFail) {
-            Log.e("VKID",vkidAuthFail.toString());
-        }
     }
 }

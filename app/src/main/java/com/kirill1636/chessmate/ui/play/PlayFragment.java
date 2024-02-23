@@ -130,6 +130,8 @@ public class PlayFragment extends Fragment {
         return root;
     }
 
+
+
 //    public void buttonListener(View view) {
 //        nameArea.append("Его имя Роберт Полсен");
 //    }
@@ -199,84 +201,7 @@ public class PlayFragment extends Fragment {
                 GetMoveTask task = new GetMoveTask();
                 task.execute(myGame.getGameId(), myGame.getMyId());
             }
-//            View view1 = new View(getActivity());
-//            testView = view1;
-//            view1.setBackgroundColor(0x0000FF00);
-//
-//            view1.setOnTouchListener(handleView);
-//            //view.setX(50);
-//            //view.setY(50);
-//            ConstraintLayout.LayoutParams layoutParams = new ConstraintLayout.LayoutParams
-//                    (ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
-//            view1.setLayoutParams(layoutParams);
-//            root.addView(view1);
 
-
-//
-//            LinearLayout electionAreaLocal = new LinearLayout(getActivity());
-//            electionAreaLocal.setOrientation(LinearLayout.VERTICAL);
-//            electionAreaLocal.setBackgroundColor(Color.WHITE);
-//            electionArea = electionAreaLocal;
-//            //electionAreaLocal.setOnTouchListener(handleElectionArea);
-//            electionAreaLocal.setX(300);
-//            electionAreaLocal.setY(400);
-////            ConstraintLayout.LayoutParams layoutParams1 = new ConstraintLayout.LayoutParams
-////                    (400, 400);
-//            //electionAreaLocal.setLayoutParams(layoutParams1);
-//            root.addView(electionAreaLocal);
-//            String url = "@drawable/white_queen";
-//            ImageView i = new ImageView(getActivity());
-//            int imageResource = getActivity().getResources().getIdentifier(
-//                    url, null, getActivity().getPackageName());
-//            Drawable drawable = getActivity().getResources().getDrawable(imageResource);
-//            i.setImageDrawable(drawable);
-//            // set the ImageView bounds to match the Drawable's dimensions
-//            i.setAdjustViewBounds(true);
-//            LinearLayout.LayoutParams imageParams = new LinearLayout.LayoutParams(150, 150);
-//            i.setLayoutParams(imageParams);
-//            electionAreaLocal.addView(i);
-//
-//            String url1 = "@drawable/white_knight";
-//            ImageView i1 = new ImageView(getActivity());
-//            int imageResource1 = getActivity().getResources().getIdentifier(
-//                    url1, null, getActivity().getPackageName());
-//            Drawable drawable1 = getActivity().getResources().getDrawable(imageResource1);
-//            i1.setImageDrawable(drawable1);
-//            // set the ImageView bounds to match the Drawable's dimensions
-//            i1.setAdjustViewBounds(true);
-//            LinearLayout.LayoutParams imageParams1 = new LinearLayout.LayoutParams(150, 150);
-//            i1.setLayoutParams(imageParams1);
-//            electionAreaLocal.addView(i1);
-//
-//            String url2 = "@drawable/white_rook";
-//            ImageView i2 = new ImageView(getActivity());
-//            int imageResource2 = getActivity().getResources().getIdentifier(
-//                    url2, null, getActivity().getPackageName());
-//            Drawable drawable2 = getActivity().getResources().getDrawable(imageResource2);
-//            i2.setImageDrawable(drawable2);
-//            // set the ImageView bounds to match the Drawable's dimensions
-//            i2.setAdjustViewBounds(true);
-//            LinearLayout.LayoutParams imageParams2 = new LinearLayout.LayoutParams(150, 150);
-//            i2.setLayoutParams(imageParams2);
-//            electionAreaLocal.addView(i2);
-//
-//            String url3 = "@drawable/white_bishop";
-//            ImageView i3 = new ImageView(getActivity());
-//            int imageResource3 = getActivity().getResources().getIdentifier(
-//                    url3, null, getActivity().getPackageName());
-//            Drawable drawable3 = getActivity().getResources().getDrawable(imageResource3);
-//            i3.setImageDrawable(drawable3);
-//            // set the ImageView bounds to match the Drawable's dimensions
-//            i3.setAdjustViewBounds(true);
-//            LinearLayout.LayoutParams imageParams3 = new LinearLayout.LayoutParams(150, 150);
-//            i3.setLayoutParams(imageParams3);
-//            electionAreaLocal.addView(i3);
-            //i.setLayoutParams(new ViewGroup.LayoutParams(300, 300));
-//            if(gameInitData.getColor().equals("black")){
-//                myGame.setMyMove(false);
-//                GetMoveTask task = new GetMoveTask();
-//                task.execute(myGame.getGameId(), myGame.getMyId());
-//            }
         }
     }
 
@@ -288,10 +213,8 @@ public class PlayFragment extends Fragment {
                 final String url = SERVER_URL + "move";
                 RestTemplate restTemplate = new RestTemplate();
                 restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
-                //restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
                 MoveResponse res = restTemplate.postForObject(url, params[0], MoveResponse.class);
-                /*ResponseEntity<String> res = restTemplate.exchange(
-                        url, HttpMethod.GET, new HttpEntity(new HttpHeaders()), String.class, params[0]);*/
+
                 return res;
             } catch (Exception e) {
                 Log.e("MainActivity", e.getMessage(), e);
@@ -301,7 +224,6 @@ public class PlayFragment extends Fragment {
 
         @Override
         protected void onPostExecute(MoveResponse moveResponse) {
-            int a = 0;
             if (moveResponse.getStatus() == AfterMoveStatus.CHECKMATE){
                 preProcessGameOver(R.string.win, myGame.getOpponentName());
                 isGameOver = true;
@@ -728,3 +650,83 @@ public class PlayFragment extends Fragment {
 //root.addView(imageView);
 //final TextView textView = binding.textHome;
 //homeViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
+
+
+//            View view1 = new View(getActivity());
+//            testView = view1;
+//            view1.setBackgroundColor(0x0000FF00);
+//
+//            view1.setOnTouchListener(handleView);
+//            //view.setX(50);
+//            //view.setY(50);
+//            ConstraintLayout.LayoutParams layoutParams = new ConstraintLayout.LayoutParams
+//                    (ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
+//            view1.setLayoutParams(layoutParams);
+//            root.addView(view1);
+
+
+//
+//            LinearLayout electionAreaLocal = new LinearLayout(getActivity());
+//            electionAreaLocal.setOrientation(LinearLayout.VERTICAL);
+//            electionAreaLocal.setBackgroundColor(Color.WHITE);
+//            electionArea = electionAreaLocal;
+//            //electionAreaLocal.setOnTouchListener(handleElectionArea);
+//            electionAreaLocal.setX(300);
+//            electionAreaLocal.setY(400);
+////            ConstraintLayout.LayoutParams layoutParams1 = new ConstraintLayout.LayoutParams
+////                    (400, 400);
+//            //electionAreaLocal.setLayoutParams(layoutParams1);
+//            root.addView(electionAreaLocal);
+//            String url = "@drawable/white_queen";
+//            ImageView i = new ImageView(getActivity());
+//            int imageResource = getActivity().getResources().getIdentifier(
+//                    url, null, getActivity().getPackageName());
+//            Drawable drawable = getActivity().getResources().getDrawable(imageResource);
+//            i.setImageDrawable(drawable);
+//            // set the ImageView bounds to match the Drawable's dimensions
+//            i.setAdjustViewBounds(true);
+//            LinearLayout.LayoutParams imageParams = new LinearLayout.LayoutParams(150, 150);
+//            i.setLayoutParams(imageParams);
+//            electionAreaLocal.addView(i);
+//
+//            String url1 = "@drawable/white_knight";
+//            ImageView i1 = new ImageView(getActivity());
+//            int imageResource1 = getActivity().getResources().getIdentifier(
+//                    url1, null, getActivity().getPackageName());
+//            Drawable drawable1 = getActivity().getResources().getDrawable(imageResource1);
+//            i1.setImageDrawable(drawable1);
+//            // set the ImageView bounds to match the Drawable's dimensions
+//            i1.setAdjustViewBounds(true);
+//            LinearLayout.LayoutParams imageParams1 = new LinearLayout.LayoutParams(150, 150);
+//            i1.setLayoutParams(imageParams1);
+//            electionAreaLocal.addView(i1);
+//
+//            String url2 = "@drawable/white_rook";
+//            ImageView i2 = new ImageView(getActivity());
+//            int imageResource2 = getActivity().getResources().getIdentifier(
+//                    url2, null, getActivity().getPackageName());
+//            Drawable drawable2 = getActivity().getResources().getDrawable(imageResource2);
+//            i2.setImageDrawable(drawable2);
+//            // set the ImageView bounds to match the Drawable's dimensions
+//            i2.setAdjustViewBounds(true);
+//            LinearLayout.LayoutParams imageParams2 = new LinearLayout.LayoutParams(150, 150);
+//            i2.setLayoutParams(imageParams2);
+//            electionAreaLocal.addView(i2);
+//
+//            String url3 = "@drawable/white_bishop";
+//            ImageView i3 = new ImageView(getActivity());
+//            int imageResource3 = getActivity().getResources().getIdentifier(
+//                    url3, null, getActivity().getPackageName());
+//            Drawable drawable3 = getActivity().getResources().getDrawable(imageResource3);
+//            i3.setImageDrawable(drawable3);
+//            // set the ImageView bounds to match the Drawable's dimensions
+//            i3.setAdjustViewBounds(true);
+//            LinearLayout.LayoutParams imageParams3 = new LinearLayout.LayoutParams(150, 150);
+//            i3.setLayoutParams(imageParams3);
+//            electionAreaLocal.addView(i3);
+//i.setLayoutParams(new ViewGroup.LayoutParams(300, 300));
+//            if(gameInitData.getColor().equals("black")){
+//                myGame.setMyMove(false);
+//                GetMoveTask task = new GetMoveTask();
+//                task.execute(myGame.getGameId(), myGame.getMyId());
+//            }
