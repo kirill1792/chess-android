@@ -88,7 +88,7 @@ public class PlayFragment extends Fragment {
         binding = FragmentPlayBinding.inflate(inflater, container, false);
         ConstraintLayout root = binding.getRoot();
         this.root = root;
-        nameArea = root.findViewById(R.id.playerName);
+        //nameArea = root.findViewById(R.id.playerName);
         //myGame = new Game("black");
         //myGame.placePieces(root);
         //canvas = root.findViewById(R.id.myCanvas);

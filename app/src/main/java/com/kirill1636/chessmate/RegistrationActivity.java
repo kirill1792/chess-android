@@ -1,52 +1,79 @@
 package com.kirill1636.chessmate;
 
-import android.os.Bundle;
-
-import com.google.android.material.snackbar.Snackbar;
-
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
+import com.kirill1636.chessmate.model.rest.AfterMoveStatus;
+import com.kirill1636.chessmate.model.rest.Move;
+import com.kirill1636.chessmate.model.rest.MoveResponse;
+import com.kirill1636.chessmate.model.rest.User;
+import com.kirill1636.chessmate.service.RestClientService;
+import com.kirill1636.chessmate.ui.play.PlayFragment;
 
-import com.kirill1636.chessmate.databinding.ActivityRegistratoinBinding;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.client.RestTemplate;
 
 public class RegistrationActivity extends AppCompatActivity {
 
-    private AppBarConfiguration appBarConfiguration;
-    private ActivityRegistratoinBinding binding;
-
+    private RestClientService restClientService = new RestClientService();
+    private SharedPreferences pref;
+    private String curToken = "";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_registration);
 
-        binding = ActivityRegistratoinBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+        pref = getSharedPreferences("TABLE", MODE_PRIVATE);
 
-        setSupportActionBar(binding.toolbar);
-
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_registratoin);
-        appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
-        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
-
-        binding.fab.setOnClickListener(new View.OnClickListener() {
+        Intent intent = getIntent();
+        String intentParam = intent.getStringExtra("token");
+        curToken = intentParam;
+        int a = 0;
+        Button button = findViewById(R.id.buttonRegister);
+        EditText nameArea = findViewById(R.id.editTextArea);
+        button.setOnClickListener(new View.OnClickListener()
+        {
             @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAnchorView(R.id.fab)
-                        .setAction("Action", null).show();
+            public void onClick(View v)
+            {
+                String name = nameArea.getText().toString();
+                if(!name.equals("") && name.length() <= 20){
+                     RegisterUserTask registerUserTask = new RegisterUserTask();
+                     registerUserTask.execute(new User(0, name, intentParam, 0));
+                }
             }
         });
     }
 
-    @Override
-    public boolean onSupportNavigateUp() {
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_registratoin);
-        return NavigationUI.navigateUp(navController, appBarConfiguration)
-                || super.onSupportNavigateUp();
+    private class RegisterUserTask extends AsyncTask<User, String, User> {
+        @Override
+        protected User doInBackground(User... params) {
+            try {
+                return restClientService.registerUser(params[0]);
+            } catch (Exception e) {
+                Log.e("MainActivity", e.getMessage(), e);
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(User user) {
+            User newUs = user;
+            SharedPreferences.Editor editor = pref.edit();
+            editor.putString("token", curToken);
+            editor.apply();
+            int a = 0;
+            System.out.println(user);
+            Intent intent = new Intent(RegistrationActivity.this, GameActivity.class);
+            startActivity(intent);
+        }
     }
 }
