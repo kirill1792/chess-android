@@ -1,9 +1,10 @@
 package com.kirill1636.chessmate;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
-import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -17,20 +18,36 @@ import androidx.navigation.ui.NavigationUI;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.kirill1636.chessmate.databinding.ActivityGameBinding;
+import com.kirill1636.chessmate.model.rest.User;
 import com.vk.id.AccessToken;
 import com.vk.id.VKID;
 import com.vk.id.VKIDAuthFail;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class GameActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
     private ActivityGameBinding binding;
 
+    private Map<String, Object> activityData = new HashMap<>();
+
+    public Map<String, Object> getActivityData() {
+        return activityData;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         try {
             super.onCreate(savedInstanceState);
-            //setContentView(R.layout.activity_game);
+
+            Intent intent = getIntent();
+            User user = new User();
+            user.setId(intent.getIntExtra("id", -1));
+            user.setName(intent.getStringExtra("name"));
+            user.setRating(intent.getIntExtra("rating", -1));
+            activityData.put("user", user);
 
             binding = ActivityGameBinding.inflate(getLayoutInflater());
             setContentView(binding.getRoot());
@@ -50,6 +67,11 @@ public class GameActivity extends AppCompatActivity {
             NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
             NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
             NavigationUI.setupWithNavController(navigationView, navController);
+            
+            TextView playerName = navigationView.getHeaderView(0).findViewById(R.id.playerName);
+            TextView playerRating = navigationView.getHeaderView(0).findViewById(R.id.playerRating);
+            playerName.setText(user.getName());
+            playerRating.setText(user.getRating().toString());
         } catch (Exception e) {
             Log.e("GameActivity", "Error while onCreate()");
             throw new RuntimeException(e);
@@ -83,5 +105,13 @@ public class GameActivity extends AppCompatActivity {
         public void onFail(@NonNull VKIDAuthFail vkidAuthFail) {
             Log.e("VKID",vkidAuthFail.toString());
         }
+    }
+
+    public ActivityGameBinding getBinding() {
+        return binding;
+    }
+
+    public void setBinding(ActivityGameBinding binding) {
+        this.binding = binding;
     }
 }

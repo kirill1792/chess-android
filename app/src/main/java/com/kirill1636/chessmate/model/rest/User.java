@@ -1,6 +1,8 @@
 package com.kirill1636.chessmate.model.rest;
 
-public class User {
+import java.io.Serializable;
+
+public class User implements Serializable {
     private Integer id;
     private String name;
     private String vkid;

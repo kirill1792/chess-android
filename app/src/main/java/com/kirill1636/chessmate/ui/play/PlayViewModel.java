@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class PlayViewModel extends ViewModel {
+public class  PlayViewModel extends ViewModel {
 
     private final MutableLiveData<String> mText;
 

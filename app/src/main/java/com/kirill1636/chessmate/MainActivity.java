@@ -58,6 +58,9 @@ public class MainActivity extends AppCompatActivity {
                 System.out.println(user);
                 int a = 0;
                 Intent intent = new Intent(MainActivity.this, GameActivity.class);
+                intent.putExtra("id", user.getId());
+                intent.putExtra("name", user.getName());
+                intent.putExtra("rating", user.getRating());
                 startActivity(intent);
             }
         }

@@ -16,6 +16,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -23,6 +24,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.kirill1636.chessmate.GameActivity;
 import com.kirill1636.chessmate.R;
 import com.kirill1636.chessmate.databinding.FragmentPlayBinding;
 import com.kirill1636.chessmate.model.Bishop;
@@ -42,6 +44,8 @@ import com.kirill1636.chessmate.model.rest.GameInitData;
 import com.kirill1636.chessmate.model.rest.GetMove;
 import com.kirill1636.chessmate.model.rest.Move;
 import com.kirill1636.chessmate.model.rest.MoveResponse;
+import com.kirill1636.chessmate.model.rest.User;
+import com.kirill1636.chessmate.service.RestClientService;
 import com.kirill1636.chessmate.ui.MyCanvas;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -52,7 +56,10 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class PlayFragment extends Fragment {
 
@@ -65,9 +72,6 @@ public class PlayFragment extends Fragment {
     private int id;
     private View testView;
     private LinearLayout electionArea;
-    //private final String SERVER_HOST = "10.0.2.2";
-    private final String SERVER_HOST = "188.225.33.112";
-    private final String SERVER_URL = "http://" + SERVER_HOST + ":8080/";
     private Socket socket;
     private DataOutputStream socketOut;
     private DataInputStream socketIn;
@@ -77,6 +81,18 @@ public class PlayFragment extends Fragment {
     private HashMap<TieType, Integer> tieTexts = new HashMap<>();
     private HashMap<Integer, Integer> endGameMap = new HashMap<>();
     private boolean isGameOver = false;
+    private GameActivity gameActivity;
+
+    private ConstraintLayout layout;
+
+    private int curMove = 0;
+
+    private int baseX = 100;
+
+    private int curY = 0;
+
+    private List<String> moves = Arrays.asList("1. e4", "e5", "2. Nf3", "d6", "3. Bc4", "Nc6",
+            "4. Nc3", "Bg4", "5. Nxe5", "Bxd1", "6. Bxf7+", "Ke7", "7. Nd5#");
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -88,6 +104,11 @@ public class PlayFragment extends Fragment {
         binding = FragmentPlayBinding.inflate(inflater, container, false);
         ConstraintLayout root = binding.getRoot();
         this.root = root;
+
+        gameActivity = (GameActivity) container.getContext();
+        Map<String, Object> activityData = gameActivity.getActivityData();
+        User user = (User) activityData.get("user");
+
         //nameArea = root.findViewById(R.id.playerName);
         //myGame = new Game("black");
         //myGame.placePieces(root);
@@ -96,14 +117,15 @@ public class PlayFragment extends Fragment {
         //canvas.setContext(new GameContext(myGame.getBoard(), myGame.getSelectedFigure(), new ArrayList<>()));
         //canvas.setImages();
         Button button = (Button) root.findViewById(R.id.button);
+        button.setText(button.getText() + "!");
+
+
         button.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
-                String name = nameArea.getText().toString();
                 root.removeView(button);
-                root.removeView(nameArea);
                 TextView view = new TextView(getActivity());
                 id = view.generateViewId();
                 view.setId(id);
@@ -124,7 +146,7 @@ public class PlayFragment extends Fragment {
 //                // Apply the updated layout parameters to TextView
 //                view.setLayoutParams(lp);
                 FindGameTask task = new FindGameTask();
-                task.execute(name);
+                task.execute(user.getId());
             }
         });
         return root;
@@ -141,18 +163,18 @@ public class PlayFragment extends Fragment {
                 .replace(R.id.nav_host_fragment_content_main, new PlayFragment()).commit();
     }
 
-    private class FindGameTask extends AsyncTask<String, String, GameInitData> {
+    private class FindGameTask extends AsyncTask<Integer, String, GameInitData> {
         @Override
-        protected GameInitData doInBackground(String... params) {
+        protected GameInitData doInBackground(Integer... params) {
             try {
-                final String url =  SERVER_URL + "play?name={name}";
+                final String url = RestClientService.SERVER_URL + "play?id={id}";
                 RestTemplate restTemplate = new RestTemplate();
                 restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
                 //restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
                 GameInitData res = restTemplate.getForObject(url, GameInitData.class, params[0]);
                 /*ResponseEntity<String> res = restTemplate.exchange(
                         url, HttpMethod.GET, new HttpEntity(new HttpHeaders()), String.class, params[0]);*/
-                socket = new Socket(SERVER_HOST, 9075);
+                socket = new Socket(RestClientService.SERVER_HOST, 9075);
                 socketOut = new DataOutputStream(socket.getOutputStream());
                 socketIn = new DataInputStream(socket.getInputStream());
                 socketOut.writeUTF(String.valueOf(res.getPlayerId()));
@@ -201,7 +223,32 @@ public class PlayFragment extends Fragment {
                 GetMoveTask task = new GetMoveTask();
                 task.execute(myGame.getGameId(), myGame.getMyId());
             }
-
+            ScrollView scrollView = new ScrollView(root.getContext());
+            scrollView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 800));
+            layout = new ConstraintLayout(scrollView.getContext());
+            layout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 800));
+            layout.setBackgroundColor(Color.RED);
+            //layout.setOrientation(LinearLayout.VERTICAL);
+//            Button button0 = new Button(layout.getContext());
+//            Button button1 = new Button(layout.getContext());
+//            button1.setY(100);
+//            Button button2 = new Button(layout.getContext());
+//            button2.setY(200);
+//            Button button3 = new Button(layout.getContext());
+//            button3.setY(300);
+//            Button button4 = new Button(layout.getContext());
+//            button4.setY(400);
+//            Button button5 = new Button(layout.getContext());
+//            button5.setY(500);
+//            layout.addView(button0);
+//            layout.addView(button1);
+//            layout.addView(button2);
+//            layout.addView(button3);
+//            layout.addView(button4);
+//            layout.addView(button5);
+            scrollView.addView(layout);
+            scrollView.setY(1600);
+            root.addView(scrollView);
         }
     }
 
@@ -210,7 +257,7 @@ public class PlayFragment extends Fragment {
         @Override
         protected MoveResponse doInBackground(Move... params) {
             try {
-                final String url = SERVER_URL + "move";
+                final String url = RestClientService.SERVER_URL + "move";
                 RestTemplate restTemplate = new RestTemplate();
                 restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
                 MoveResponse res = restTemplate.postForObject(url, params[0], MoveResponse.class);
@@ -225,11 +272,11 @@ public class PlayFragment extends Fragment {
         @Override
         protected void onPostExecute(MoveResponse moveResponse) {
             if (moveResponse.getStatus() == AfterMoveStatus.CHECKMATE){
-                preProcessGameOver(R.string.win, myGame.getOpponentName());
+                preProcessGameOver(R.string.win, myGame.getOpponentName(), moveResponse.getNewRating());
                 isGameOver = true;
             }
             else if(moveResponse.getStatus() == AfterMoveStatus.TIE) {
-                preProcessGameOver(R.string.tie, moveResponse.getTieType());
+                preProcessGameOver(R.string.tie, moveResponse.getTieType(), moveResponse.getNewRating());
                 isGameOver = true;
             }
             else {
@@ -243,7 +290,7 @@ public class PlayFragment extends Fragment {
         @Override
         protected GetMove doInBackground(Integer... params) {
             try {
-                final String url =  SERVER_URL + "move?gameId={gameId}&playerId={playerId}";
+                final String url =  RestClientService.SERVER_URL + "move?gameId={gameId}&playerId={playerId}";
                 RestTemplate restTemplate = new RestTemplate();
                 restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
                 //restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
@@ -263,15 +310,36 @@ public class PlayFragment extends Fragment {
         @Override
         protected void onPostExecute(GetMove move) {
             myGame.opponentMove(move.getMoveFrom(), move.getMoveTo(), move.getFigureType(), move.getRookFrom(), move.getRookTo(), root);
+//            if(myGame.getMyColor().equals("white")){
+//                TextView textView = new TextView(layout.getContext());
+//                textView.setText(moves.get(curMove));
+//                textView.setX(baseX + 150);
+//                textView.setTextSize(20);
+//                textView.setBackgroundColor(Color.BLUE);
+//                textView.setY(10);
+//                layout.addView(textView);
+//                curY += 50;
+//                curMove++;
+//            }
+//            else {
+//                TextView textView = new TextView(layout.getContext());
+//                textView.setText(moves.get(curMove));
+//                textView.setX(baseX);
+//                textView.setY(curY);
+//                textView.setTextSize(20);
+//                textView.setBackgroundColor(Color.BLUE);
+//                curMove++;
+//                layout.addView(textView);
+//            }
             canvas.setContext(new GameContext(myGame.getBoard(), null, new ArrayList<>()));
             canvas.setImages();
             canvas.invalidate();
             if (move.getStatus() == AfterMoveStatus.CHECKMATE){
-                preProcessGameOver(R.string.lose, myGame.getOpponentName());
+                preProcessGameOver(R.string.lose, myGame.getOpponentName(), move.getNewRating());
                 isGameOver = true;
             }
             if(move.getStatus() == AfterMoveStatus.TIE){
-                preProcessGameOver(R.string.tie, move.getTieType());
+                preProcessGameOver(R.string.tie, move.getTieType(), move.getNewRating());
                 isGameOver = true;
             }
         }
@@ -314,20 +382,20 @@ public class PlayFragment extends Fragment {
         }
     }
 
-    public void preProcessGameOver(int gameResult, TieType tieType){
-        gameOver(gameResult, getString(tieTexts.get(tieType)));
+    public void preProcessGameOver(int gameResult, TieType tieType, int newRat){
+        gameOver(gameResult, getString(tieTexts.get(tieType)), newRat);
     }
 
-    public void preProcessGameOver(int gameResult, String name){
+    public void preProcessGameOver(int gameResult, String name, int newRat){
         if (gameResult == R.string.win){
-            gameOver(gameResult, getString(R.string.checkmate_win, name));
+            gameOver(gameResult, getString(R.string.checkmate_win, name), newRat);
         }
         else if(gameResult == R.string.lose){
-            gameOver(gameResult, getString(R.string.checkmate_lose, name));
+            gameOver(gameResult, getString(R.string.checkmate_lose, name), newRat);
         }
     }
 
-    public void gameOver(int gameResult, String mainText){
+    public void gameOver(int gameResult, String mainText, int newRat){
         ConstraintLayout.LayoutParams layoutParams = new ConstraintLayout.LayoutParams
                 (700, 1000);
         ConstraintLayout.LayoutParams viewParams = new ConstraintLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 200);
@@ -356,7 +424,7 @@ public class PlayFragment extends Fragment {
         leaveGame.setBackgroundColor(getContext().getResources().getColor(R.color.leave_game_button));
         leaveGame.setGravity(Gravity.CENTER);
         leaveGame.setText("ОК");
-        endGameArea.addView(leaveGame);
+        endGameArea.addView(leaveGame); 
 
         endGameArea.setLayoutParams(layoutParams);
         view.setLayoutParams(viewParams);
@@ -364,7 +432,12 @@ public class PlayFragment extends Fragment {
         endGameArea.addView(view);
         endGameArea.setBackground(border);
         endGameArea.addView(createLabel(gameResult));
-        endGameArea.addView(createText(mainText));
+        endGameArea.addView(createText(mainText, 200));
+        TextView tv = gameActivity.getBinding().navView
+                .getHeaderView(0).findViewById(R.id.playerRating);
+        endGameArea.addView(createText("Ваш рейтинг: " + tv.getText() + " -> " + newRat, 400));
+        //tv.setY(300);
+        tv.setText(Integer.toString(newRat));
         root.addView(endGameArea);
 
         leaveGame.setOnClickListener(new View.OnClickListener() {
@@ -391,10 +464,10 @@ public class PlayFragment extends Fragment {
         return label;
     }
 
-    private TextView createText(String mainText){
+    private TextView createText(String mainText, int marg){
         RelativeLayout.LayoutParams textParams = new RelativeLayout.LayoutParams(500, 200);
         textParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
-        textParams.topMargin = 400;
+        textParams.topMargin = marg;
         TextView text = new TextView(getActivity());
         text.setGravity(Gravity.CENTER);
         //text.setBackgroundColor(Color.BLUE);
@@ -533,11 +606,34 @@ public class PlayFragment extends Fragment {
 //                    root.addView(endGameArea);
                     if (checkCords(x, y) && myGame.isMyMove() && !isGameOver) {
                         MoveResult moveResult = myGame.processCords(new Coordinates(y / (canvas.getWidth() / 8), x / (canvas.getWidth() / 8)));
+
                         System.out.println(moveResult);
                         canvas.setContext(new GameContext(myGame.getBoard(), myGame.getSelectedFigure(), moveResult.coordinates));
                         canvas.setImages();
                         canvas.invalidate();
                         if(moveResult.status == Status.MOVED) {
+//                            if(myGame.getMyColor().equals("white")){
+//                                TextView textView = new TextView(layout.getContext());
+//                                textView.setText(moves.get(curMove));
+//                                textView.setBackgroundColor(Color.BLUE);
+//                                textView.setTextSize(20);
+//                                textView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+//                                textView.setX(baseX);
+//                                textView.setY(curY);
+//                                layout.addView(textView);
+//                                curMove++;
+//                            }
+//                            else {
+//                                TextView textView = new TextView(layout.getContext());
+//                                textView.setText(moves.get(curMove));
+//                                textView.setX(baseX + 150);
+//                                textView.setBackgroundColor(Color.BLUE);
+//                                textView.setTextSize(20);
+//                                textView.setY(curY);
+//                                layout.addView(textView);
+//                                curY += 50;
+//                                curMove++;
+//                            }
                             Parser parser = new Parser(myGame.getMyColor());
                             SendMoveTask task = new SendMoveTask();
                             task.execute(new Move(parser.notate(moveResult.moveFrom), parser.notate(moveResult.moveTo), myGame.getMyId(), myGame.getGameId(), null));

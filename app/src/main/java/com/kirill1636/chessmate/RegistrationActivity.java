@@ -73,6 +73,9 @@ public class RegistrationActivity extends AppCompatActivity {
             int a = 0;
             System.out.println(user);
             Intent intent = new Intent(RegistrationActivity.this, GameActivity.class);
+            intent.putExtra("id", user.getId());
+            intent.putExtra("name", user.getName());
+            intent.putExtra("rating", user.getRating());
             startActivity(intent);
         }
     }
